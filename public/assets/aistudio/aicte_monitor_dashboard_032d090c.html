@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICTE Complaint Monitoring System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1d4ed8', // blue-700
+                        secondary: '#f9fafb', // gray-50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+        .tab-active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+            font-weight: 500;
+        }
+        .tab-inactive {
+            border-bottom: 2px solid transparent;
+            color: #6b7280;
+        }
+        .tab-inactive:hover {
+            border-bottom: 2px solid #d1d5db;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between h-full flex-shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-6 border-b border-gray-100">
+                <div class="flex items-center gap-2 text-blue-700 font-bold text-xl tracking-tight">
+                    <i class="fa-solid w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center fa-shield-halved text-sm"></i>
+                    AICTE Monitor
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <div class="px-4 py-6 space-y-1">
+                <p class="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Main Menu</p>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 bg-blue-50 text-blue-700 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-building-columns w-5 text-center"></i> Institutions
+                </a>
+                <a href="#" class="flex items-center justify-between px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-code-merge w-5 text-center"></i> Overlaps
+                    </div>
+                    <span class="bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">7</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i> Analytics
+                </a>
+                
+                <p class="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Management</p>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-regular fa-folder-open w-5 text-center"></i> Reports
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-users-gear w-5 text-center"></i> Users & Roles
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-gear w-5 text-center"></i> Settings
+                </a>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-gray-200">
+            <button class="flex items-center gap-3 w-full hover:bg-gray-50 p-2 rounded-md transition-colors">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="text-left flex-1">
+                    <p class="text-sm font-medium text-gray-800">S. Sharma</p>
+                    <p class="text-xs text-gray-500">Regulation Bureau</p>
+                </div>
+                <i class="fa-solid fa-chevron-up text-xs text-gray-400"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        <!-- Top Header -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0">
+            <h1 class="text-xl font-semibold text-gray-800">Complaint Management</h1>
+            
+            <div class="flex items-center gap-4">
+                <!-- Role Selector -->
+                <div class="relative hidden md:block">
+                    <button class="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fa-solid fa-user-shield text-gray-400"></i>
+                        Regulation Bureau (RB)
+                        <i class="fa-solid fa-chevron-down text-xs ml-1 text-gray-400"></i>
+                    </button>
+                </div>
+                
+                <button class="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fa-solid fa-file-export text-gray-400"></i>
+                    Export
+                </button>
+                
+                <button class="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    Create Complaint
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            
+            <!-- Charts & Progress Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Line Chart -->
+                <div class="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-semibold text-gray-800">Complaints Overview (Across Bureaus)</h2>
+                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <div class="relative h-64 w-full">
+                        <canvas id="complaintsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Issue Categories & Stats -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-800 mb-4">Top Issue Categories</h2>
+                        <div class="space-y-4">
+                            <!-- Category 1 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600 font-medium">Fee Refund Issues</span>
+                                    <span class="text-gray-800 font-semibold">38%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 38%"></div>
+                                </div>
+                            </div>
+                            <!-- Category 2 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600 font-medium">Certificate Withheld</span>
+                                    <span class="text-gray-800 font-semibold">24%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-blue-400 h-2 rounded-full" style="width: 24%"></div>
+                                </div>
+                            </div>
+                            <!-- Category 3 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600 font-medium">Infrastructure/Faculty</span>
+                                    <span class="text-gray-800 font-semibold">18%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-2">
+                                    <div class="bg-blue-300 h-2 rounded-full" style="width: 18%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-gray-100 space-y-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Avg Resolution Time</p>
+                                <p class="text-2xl font-bold text-gray-800 mt-1">3.2 <span class="text-sm font-normal text-gray-500">days</span></p>
+                            </div>
+                            <div class="text-green-500 text-xs font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-down"></i> 0.5 days
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">SLA Compliance</p>
+                                <p class="text-lg font-bold text-gray-800 mt-1">92%</p>
+                            </div>
+                            <div class="text-green-500 text-xs font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-up"></i> 3%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Pending -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Pending Complaints</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">32</h3>
+                        <p class="text-xs font-medium text-yellow-600 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up"></i> 12 from last week
+                        </p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-500 text-lg">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                </div>
+                <!-- Resolved -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Resolved Today</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">18</h3>
+                        <p class="text-xs font-medium text-green-600 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up"></i> 5 from yesterday
+                        </p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500 text-lg">
+                        <i class="fa-regular fa-circle-check"></i>
+                    </div>
+                </div>
+                <!-- Overlaps -->
+                <div class="bg-white border border-red-200 rounded-xl p-5 shadow-sm flex items-start justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-bl-full -z-10"></div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Overlap Alerts</p>
+                        <h3 class="text-3xl font-bold text-red-600 mt-1">7</h3>
+                        <p class="text-xs font-medium text-red-500 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up"></i> 2 new duplicates found
+                        </p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 text-lg">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+                <!-- SLA Breached -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">SLA Breached</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">5</h3>
+                        <p class="text-xs font-medium text-green-600 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-down"></i> 1 from last week
+                        </p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-lg">
+                        <i class="fa-regular fa-calendar-xmark"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col">
+                
+                <!-- Toolbar -->
+                <div class="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="relative w-full sm:w-96">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" placeholder="Search by ID, Institution, Category..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <i class="fa-regular fa-bookmark text-gray-400"></i> Saved Views <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                        </button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-gray-400"></i> Filters
+                        </button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            Bulk Actions <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="px-4 border-b border-gray-200 flex gap-6">
+                    <button onclick="switchTab('current')" id="tab-current" class="py-3 px-1 text-sm tab-active transition-colors">
+                        Current Complaints
+                    </button>
+                    <button onclick="switchTab('overlaps')" id="tab-overlaps" class="py-3 px-1 text-sm tab-inactive transition-colors relative">
+                        Overlapping Cases
+                        <span class="absolute top-2 -right-3 w-2 h-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+
+                <!-- Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
+                            <tr>
+                                <th class="w-10 px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="px-4 py-3 font-medium">Case ID</th>
+                                <th class="px-4 py-3 font-medium">Category</th>
+                                <th class="px-4 py-3 font-medium">Institution</th>
+                                <th class="px-4 py-3 font-medium">Bureau</th>
+                                <th class="px-4 py-3 font-medium">Status</th>
+                                <th class="px-4 py-3 font-medium">Priority</th>
+                                <th class="px-4 py-3 font-medium">SLA Due Date</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        
+                        <!-- Tbody: Current Complaints -->
+                        <tbody id="tbody-current" class="divide-y divide-gray-100">
+                            <!-- Row 1 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-1001</td>
+                                <td class="px-4 py-3 text-gray-800">Fee Refund</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">SSN College of Engineering</p>
+                                    <p class="text-xs text-gray-500">PID-1-10492834</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">PGRC</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">In Progress</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded">High</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-25</p>
+                                    <p class="text-xs text-green-600 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-[6px]"></i> Within SLA</p>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Row 2 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-1002</td>
+                                <td class="px-4 py-3 text-gray-800">Certificate Withheld</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">PSG College of Technology</p>
+                                    <p class="text-xs text-gray-500">PID-1-20381992</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">Regulation Bureau</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700">New</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">Medium</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-28</p>
+                                    <p class="text-xs text-green-600 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-[6px]"></i> Within SLA</p>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Row 3 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-1003</td>
+                                <td class="px-4 py-3 text-gray-800">Infrastructure Gap</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">VIT Chennai Campus</p>
+                                    <p class="text-xs text-gray-500">PID-1-30911221</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">Regulation Bureau</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">Resolved</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">Low</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-22</p>
+                                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-0.5">Completed</p>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Row 4 -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-1004</td>
+                                <td class="px-4 py-3 text-gray-800">Scholarship Delay</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">SRM Institute of Science</p>
+                                    <p class="text-xs text-gray-500">PID-1-40112333</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">PGRC</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">In Progress</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">Critical</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-20</p>
+                                    <p class="text-xs text-red-600 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-[6px]"></i> Breached</p>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <!-- Tbody: Overlapping Cases (Hidden by default) -->
+                        <tbody id="tbody-overlaps" class="divide-y divide-gray-100 hidden">
+                            <!-- Row 1 -->
+                            <tr class="hover:bg-red-50 transition-colors bg-red-50/30">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-2001 <br><span class="text-xs text-red-500">Matches CMP-1004</span></td>
+                                <td class="px-4 py-3 text-gray-800">Duplicate: Scholarship</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">SRM Institute of Science</p>
+                                    <p class="text-xs text-gray-500">PID-1-40112333</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p class="font-medium">RB & PGRC</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700 animate-pulse border border-red-200">Action Required</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded">High</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-24</p>
+                                    <button class="mt-1 text-xs text-blue-600 hover:underline">Merge Cases</button>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Row 2 -->
+                            <tr class="hover:bg-red-50 transition-colors bg-red-50/30">
+                                <td class="px-4 py-3 text-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+                                </td>
+                                <td class="px-4 py-3 font-medium text-blue-600">CMP-2002 <br><span class="text-xs text-red-500">Matches EVC-992</span></td>
+                                <td class="px-4 py-3 text-gray-800">Infrastructure Deficiency</td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-gray-800">Anna University Main</p>
+                                    <p class="text-xs text-gray-500">PID-1-50001888</p>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p class="font-medium">RB & EVC Panel</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700 animate-pulse border border-red-200">Action Required</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">Critical</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <p>2026-10-23</p>
+                                    <button class="mt-1 text-xs text-blue-600 hover:underline">Merge Cases</button>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Footer -->
+                <div class="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+                    <p class="text-sm text-gray-500">Showing 1 to 4 of 32 entries</p>
+                    <div class="flex gap-1">
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50" disabled>Previous</button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">Next</button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Bottom padding for scroll -->
+            <div class="h-4"></div>
+        </div>
+    </main>
+
+    <!-- JavaScript for Interactions -->
+    <script>
+        // --- 1. Tab Switching Logic ---
+        function switchTab(tabName) {
+            const currentTabBtn = document.getElementById('tab-current');
+            const overlapsTabBtn = document.getElementById('tab-overlaps');
+            const currentTbody = document.getElementById('tbody-current');
+            const overlapsTbody = document.getElementById('tbody-overlaps');
+
+            if (tabName === 'current') {
+                // UI styles
+                currentTabBtn.className = 'py-3 px-1 text-sm tab-active transition-colors';
+                overlapsTabBtn.className = 'py-3 px-1 text-sm tab-inactive transition-colors relative';
+                // Display toggle
+                currentTbody.classList.remove('hidden');
+                overlapsTbody.classList.add('hidden');
+            } else {
+                // UI styles
+                overlapsTabBtn.className = 'py-3 px-1 text-sm tab-active transition-colors relative';
+                currentTabBtn.className = 'py-3 px-1 text-sm tab-inactive transition-colors';
+                // Display toggle
+                overlapsTbody.classList.remove('hidden');
+                currentTbody.classList.add('hidden');
+            }
+        }
+
+        // --- 2. Chart.js Line Chart Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('complaintsChart').getContext('2d');
+            
+            // Gradient for Regulation Bureau Line
+            const gradientRB = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientRB.addColorStop(0, 'rgba(37, 99, 235, 0.2)'); // blue-600 with opacity
+            gradientRB.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+            // Gradient for PGRC Line
+            const gradientPGRC = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientPGRC.addColorStop(0, 'rgba(16, 185, 129, 0.2)'); // emerald-500 with opacity
+            gradientPGRC.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Regulation Bureau (RB)',
+                            data: [65, 58, 80, 81, 56, 75],
+                            borderColor: '#2563eb', // blue-600
+                            backgroundColor: gradientRB,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#2563eb',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4 // Smooth curve
+                        },
+                        {
+                            label: 'Public Grievance (PGRC)',
+                            data: [28, 48, 40, 45, 70, 52],
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: gradientPGRC,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#10b981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                boxWidth: 12,
+                                usePointStyle: true,
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#1f2937',
+                            bodyColor: '#4b5563',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 10,
+                            boxPadding: 4,
+                            usePointStyle: true,
+                            titleFont: {
+                                family: "'Inter', sans-serif",
+                                size: 13,
+                                weight: '600'
+                            },
+                            bodyFont: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                },
+                                color: '#6b7280'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                borderDash: [4, 4],
+                                color: '#e5e7eb',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                stepSize: 25,
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                },
+                                color: '#6b7280'
+                            },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
